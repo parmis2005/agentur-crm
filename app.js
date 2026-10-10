@@ -264,7 +264,7 @@ function renderAll() {
 
 function switchView(view) {
   const titles = {
-    dashboard: "Uebersicht",
+    dashboard: "Übersicht",
     pipeline: "Pipeline",
     leads: "Leads",
     tasks: "Aufgaben",

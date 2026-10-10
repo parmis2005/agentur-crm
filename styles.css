@@ -1,19 +1,19 @@
 :root {
   color-scheme: light;
-  --ink: #17202a;
-  --muted: #667085;
-  --line: #d9e0e8;
+  --ink: #4c1d95;
+  --muted: #7c3aed;
+  --line: #eadcff;
   --surface: #ffffff;
-  --surface-soft: #f5f7fa;
-  --nav: #10222f;
-  --nav-soft: #1b3447;
-  --accent: #0d9488;
-  --accent-dark: #0f766e;
-  --gold: #d99717;
-  --rose: #be3455;
-  --blue: #2864b4;
-  --green: #23845b;
-  --shadow: 0 18px 45px rgba(16, 34, 47, 0.12);
+  --surface-soft: #fbf8ff;
+  --nav: #ffffff;
+  --nav-soft: #f3e8ff;
+  --accent: #7c3aed;
+  --accent-dark: #5b21b6;
+  --gold: #a16207;
+  --rose: #be185d;
+  --blue: #6d28d9;
+  --green: #6b21a8;
+  --shadow: 0 18px 45px rgba(76, 29, 149, 0.1);
 }
 
 * {
@@ -56,7 +56,8 @@ button {
   gap: 28px;
   padding: 26px 18px;
   background: var(--nav);
-  color: #f8fafc;
+  color: var(--ink);
+  border-right: 1px solid var(--line);
 }
 
 .brand {
@@ -72,7 +73,7 @@ button {
 }
 
 .brand small {
-  color: #a7bdcc;
+  color: #8b5cf6;
 }
 
 .brand-mark {
@@ -83,9 +84,9 @@ button {
   grid-template-rows: repeat(2, 1fr);
   gap: 4px;
   padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #183247;
+  background: #ffffff;
 }
 
 .brand-mark span {
@@ -102,7 +103,7 @@ button {
 
 .brand-mark span:nth-child(3) {
   grid-column: 1 / span 2;
-  background: #f8fafc;
+  background: #4c1d95;
 }
 
 .nav-list {
@@ -119,7 +120,7 @@ button {
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #dbe7ef;
+  color: var(--accent-dark);
   padding: 11px 12px;
   text-align: left;
 }
@@ -128,7 +129,7 @@ button {
 .ghost-button:hover,
 .nav-item.active {
   background: var(--nav-soft);
-  color: #ffffff;
+  color: var(--accent-dark);
 }
 
 .sidebar svg,
@@ -402,7 +403,7 @@ h3 {
   min-height: 24px;
   border-radius: 999px;
   background: #eef6f5;
-  color: #0f766e;
+  color: var(--accent-dark);
   padding: 0 9px;
   font-size: 12px;
   font-weight: 700;
