@@ -27,7 +27,7 @@ const sampleLeads = [
     probability: 55,
     nextAction: "Angebot besprechen",
     nextActionDate: daysFromNow(1),
-    notes: "Relaunch fuer Kanzlei. Fokus: Vertrauen, klare Leistungen, schnelle Kontaktaufnahme.",
+    notes: "Relaunch für Kanzlei. Fokus: Vertrauen, klare Leistungen, schnelle Kontaktaufnahme.",
     activities: [
       { id: createId(), text: "Discovery Call abgeschlossen", date: daysFromNow(-2) },
     ],
@@ -46,9 +46,9 @@ const sampleLeads = [
     priority: "Mittel",
     value: 3200,
     probability: 30,
-    nextAction: "Media-Budget klaeren",
+    nextAction: "Media-Budget klären",
     nextActionDate: daysFromNow(0),
-    notes: "Will neue Mitglieder fuer Januar-Kampagne gewinnen.",
+    notes: "Will neue Mitglieder für Januar-Kampagne gewinnen.",
     activities: [],
     createdAt: daysFromNow(-7),
     updatedAt: daysFromNow(-1),
@@ -86,9 +86,9 @@ const sampleLeads = [
     priority: "Niedrig",
     value: 2400,
     probability: 10,
-    nextAction: "Erstgespraech terminieren",
+    nextAction: "Erstgespräch terminieren",
     nextActionDate: daysFromNow(4),
-    notes: "Lokale Sichtbarkeit fuer zwei Standorte.",
+    notes: "Lokale Sichtbarkeit für zwei Standorte.",
     activities: [],
     createdAt: daysFromNow(-1),
     updatedAt: daysFromNow(-1),
@@ -231,16 +231,67 @@ function loadState() {
 
   try {
     const parsed = JSON.parse(stored);
-    return {
+    const normalized = normalizeStoredText({
       leads: Array.isArray(parsed.leads) ? parsed.leads : sampleLeads,
       settings: { monthlyGoal: 15000, currency: "EUR", ...(parsed.settings || {}) },
-    };
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    return normalized;
   } catch {
     return {
       leads: sampleLeads,
       settings: { monthlyGoal: 15000, currency: "EUR" },
     };
   }
+
+function normalizeStoredText(value) {
+  if (typeof value === "string") return normalizeGermanText(value);
+  if (Array.isArray(value)) return value.map(normalizeStoredText);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, normalizeStoredText(item)]),
+    );
+  }
+  return value;
+}
+
+function normalizeGermanText(value) {
+  const replacements = [
+    ["fuer", "für"],
+    ["Fuer", "Für"],
+    ["Oeffne", "Öffne"],
+    ["Unterstuetzte", "Unterstützte"],
+    ["laeuft", "läuft"],
+    ["Laeuft", "Läuft"],
+    ["waere", "wäre"],
+    ["Waere", "Wäre"],
+    ["naechste", "nächste"],
+    ["Naechste", "Nächste"],
+    ["Naechster", "Nächster"],
+    ["faellige", "fällige"],
+    ["Faellige", "Fällige"],
+    ["ueberfaellige", "überfällige"],
+    ["Ueberfaellig", "Überfällig"],
+    ["Demnaechst", "Demnächst"],
+    ["klaeren", "klären"],
+    ["Erstgespraech", "Erstgespräch"],
+    ["Gespraech", "Gespräch"],
+    ["Aktivitaet", "Aktivität"],
+    ["Aktivitaeten", "Aktivitäten"],
+    ["Hinzufuegen", "Hinzufügen"],
+    ["Loeschen", "Löschen"],
+    ["loeschen", "löschen"],
+    ["geloescht", "gelöscht"],
+    ["geaendert", "geändert"],
+    ["Kanaele", "Kanäle"],
+    ["Prioritaet", "Priorität"],
+    ["enthaelt", "enthält"],
+    ["Muenchen", "München"],
+    ["Koeln", "Köln"],
+    ["Duesseldorf", "Düsseldorf"],
+  ];
+  return replacements.reduce((text, [from, to]) => text.replaceAll(from, to), value);
+}
 }
 
 function saveState() {
@@ -301,7 +352,7 @@ function renderDashboard() {
     metric("Offene Leads", openLeads.length, `${leads.length} Kontakte gesamt`),
     metric("Pipeline", formatCurrency(pipelineValue), "Nicht gewonnene Deals"),
     metric("Forecast", formatCurrency(weightedValue), "Nach Wahrscheinlichkeit"),
-    metric("Gewonnen", formatCurrency(wonValue), `${overdue} ueberfaellige Aktionen`),
+    metric("Gewonnen", formatCurrency(wonValue), `${overdue} überfällige Aktionen`),
   ].join("");
 
   const hotLeads = [...openLeads]
@@ -317,7 +368,7 @@ function renderDashboard() {
     .slice(0, 6);
 
   els.focusTaskList.innerHTML =
-    focusTasks.map(renderTaskCard).join("") || emptyState("Keine faelligen Follow-ups.");
+    focusTasks.map(renderTaskCard).join("") || emptyState("Keine fälligen Follow-ups.");
 }
 
 function renderPipeline() {
@@ -393,9 +444,9 @@ function renderLeads() {
 
 function renderTasks() {
   const groups = [
-    { key: "overdue", title: "Ueberfaellig", filter: (lead) => isBeforeToday(lead.nextActionDate) },
+    { key: "overdue", title: "Überfällig", filter: (lead) => isBeforeToday(lead.nextActionDate) },
     { key: "today", title: "Heute", filter: (lead) => isToday(lead.nextActionDate) },
-    { key: "upcoming", title: "Demnaechst", filter: (lead) => isAfterToday(lead.nextActionDate) },
+    { key: "upcoming", title: "Demnächst", filter: (lead) => isAfterToday(lead.nextActionDate) },
   ];
   const openLeads = getVisibleLeads().filter((lead) => !["Gewonnen", "Verloren"].includes(lead.status));
 
@@ -613,13 +664,13 @@ function saveLeadFromForm(event) {
 function deleteCurrentLead() {
   if (!editingLeadId) return;
   const lead = state.leads.find((item) => item.id === editingLeadId);
-  const confirmed = window.confirm(`${lead.company} wirklich loeschen?`);
+  const confirmed = window.confirm(`${lead.company} wirklich löschen?`);
   if (!confirmed) return;
   state.leads = state.leads.filter((item) => item.id !== editingLeadId);
   saveState();
   els.leadDialog.close();
   renderAll();
-  showToast("Lead geloescht.");
+  showToast("Lead gelöscht.");
 }
 
 function addActivity() {
@@ -650,7 +701,7 @@ function renderActivities(activities) {
           </div>
         `,
       )
-      .join("") || emptyState("Noch keine Aktivitaeten.");
+      .join("") || emptyState("Noch keine Aktivitäten.");
 }
 
 function advanceLead(id) {
@@ -668,7 +719,7 @@ function updateLeadStatus(id, status) {
   lead.updatedAt = todayIso();
   (lead.activities ||= []).unshift({
     id: createId(),
-    text: `Status geaendert zu ${status}`,
+    text: `Status geändert zu ${status}`,
     date: todayIso(),
   });
   saveState();
@@ -684,7 +735,7 @@ function completeTask(id) {
     text: `Aufgabe erledigt: ${lead.nextAction}`,
     date: todayIso(),
   });
-  lead.nextAction = "Naechster Check-in";
+  lead.nextAction = "Nächster Check-in";
   lead.nextActionDate = daysFromNow(7);
   lead.updatedAt = todayIso();
   saveState();
@@ -728,10 +779,10 @@ function restoreJson(event) {
     try {
       const data = JSON.parse(String(reader.result));
       if (!Array.isArray(data.leads)) throw new Error("Invalid backup");
-      state = {
+      state = normalizeStoredText({
         leads: data.leads,
         settings: { monthlyGoal: 15000, currency: "EUR", ...(data.settings || {}) },
-      };
+      });
       saveState();
       hydrateSelects();
       renderAll();
@@ -751,7 +802,7 @@ function importCsv(event) {
   reader.onload = () => {
     const rows = parseCsv(String(reader.result));
     if (rows.length < 2) {
-      showToast("CSV enthaelt keine Leads.");
+      showToast("CSV enthält keine Leads.");
       return;
     }
     const header = rows[0].map((item) => item.trim());

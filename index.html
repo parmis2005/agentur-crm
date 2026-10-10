@@ -6,7 +6,7 @@
     <title>Digital Vision CRM</title>
     <meta
       name="description"
-      content="Lokales AgenturCRM fuer Digital Vision: Leads, Pipeline, Aufgaben und Umsatzprognosen."
+      content="Lokales AgenturCRM für Digital Vision: Leads, Pipeline, Aufgaben und Umsatzprognosen."
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
@@ -93,7 +93,7 @@
               <div class="panel-header">
                 <div>
                   <h2>Aktive Chancen</h2>
-                  <p>Priorisierte Leads nach naechster Aktion</p>
+                  <p>Priorisierte Leads nach nächster Aktion</p>
                 </div>
                 <button class="text-button" data-view-shortcut="leads">Alle Leads</button>
               </div>
@@ -104,7 +104,7 @@
               <div class="panel-header">
                 <div>
                   <h2>Heute im Fokus</h2>
-                  <p>Faellige Follow-ups und offene Angebote</p>
+                  <p>Fällige Follow-ups und offene Angebote</p>
                 </div>
                 <button class="text-button" data-view-shortcut="tasks">Alle Aufgaben</button>
               </div>
@@ -140,7 +140,7 @@
               <label>
                 Sortierung
                 <select id="sortSelect">
-                  <option value="nextAction">Naechste Aktion</option>
+                  <option value="nextAction">Nächste Aktion</option>
                   <option value="value">Dealwert</option>
                   <option value="updatedAt">Zuletzt bearbeitet</option>
                   <option value="company">Firma</option>
@@ -162,7 +162,7 @@
                   <th>Status</th>
                   <th>Service</th>
                   <th>Deal</th>
-                  <th>Naechste Aktion</th>
+                  <th>Nächste Aktion</th>
                   <th></th>
                 </tr>
               </thead>
@@ -190,7 +190,7 @@
               <div class="panel-header">
                 <div>
                   <h2>Quellen</h2>
-                  <p>Welche Kanaele bringen die besten Leads?</p>
+                  <p>Welche Kanäle bringen die besten Leads?</p>
                 </div>
               </div>
               <div class="chart-list" id="sourceChart"></div>
@@ -223,7 +223,7 @@
             <p class="eyebrow">Lead</p>
             <h2 id="leadDialogTitle">Neuer Lead</h2>
           </div>
-          <button class="icon-button" type="button" data-close-dialog aria-label="Schliessen">
+          <button class="icon-button" type="button" data-close-dialog aria-label="Schließen">
             <i data-lucide="x"></i>
           </button>
         </div>
@@ -259,7 +259,7 @@
             <select id="source" name="source"></select>
           </label>
           <label>
-            Prioritaet
+            Priorität
             <select id="priority" name="priority">
               <option>Hoch</option>
               <option>Mittel</option>
@@ -275,7 +275,7 @@
             <input id="probability" name="probability" type="number" min="0" max="100" step="5" />
           </label>
           <label>
-            Naechste Aktion
+            Nächste Aktion
             <input id="nextAction" name="nextAction" />
           </label>
           <label>
@@ -290,10 +290,10 @@
 
         <div class="activity-area" id="activityArea">
           <div class="activity-input">
-            <input id="activityInput" type="text" placeholder="Aktivitaet oder Gespraechsnotiz" />
+            <input id="activityInput" type="text" placeholder="Aktivität oder Gesprächsnotiz" />
             <button class="secondary-button" type="button" id="addActivityButton">
               <i data-lucide="message-square-plus"></i>
-              Hinzufuegen
+              Hinzufügen
             </button>
           </div>
           <div class="activity-list" id="activityList"></div>
@@ -302,7 +302,7 @@
         <div class="modal-actions">
           <button class="danger-button" type="button" id="deleteLeadButton">
             <i data-lucide="trash-2"></i>
-            Loeschen
+            Löschen
           </button>
           <div>
             <button class="secondary-button" type="button" data-close-dialog>Abbrechen</button>
