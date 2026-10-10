@@ -1,4 +1,5 @@
 const STORAGE_KEY = "digitalVisionCrm.v1";
+const DATA_VERSION = 2;
 
 const statuses = [
   { key: "Neu", probability: 10 },
@@ -11,108 +12,6 @@ const statuses = [
 
 const services = ["Website", "SEO", "Ads", "Branding", "Automation", "Content"];
 const sources = ["Empfehlung", "Website", "LinkedIn", "Instagram", "Kaltakquise", "Event"];
-
-const sampleLeads = [
-  {
-    id: createId(),
-    name: "Mara Klein",
-    company: "Klein & Partner",
-    email: "mara@klein-partner.de",
-    phone: "+49 30 5550 184",
-    status: "Angebot",
-    service: "Website",
-    source: "Empfehlung",
-    priority: "Hoch",
-    value: 8600,
-    probability: 55,
-    nextAction: "Angebot besprechen",
-    nextActionDate: daysFromNow(1),
-    notes: "Relaunch für Kanzlei. Fokus: Vertrauen, klare Leistungen, schnelle Kontaktaufnahme.",
-    activities: [
-      { id: createId(), text: "Discovery Call abgeschlossen", date: daysFromNow(-2) },
-    ],
-    createdAt: daysFromNow(-12),
-    updatedAt: daysFromNow(-2),
-  },
-  {
-    id: createId(),
-    name: "Jonas Mertens",
-    company: "Urban Fit Studio",
-    email: "jonas@urbanfit.de",
-    phone: "+49 40 2219 510",
-    status: "Qualifiziert",
-    service: "Ads",
-    source: "Instagram",
-    priority: "Mittel",
-    value: 3200,
-    probability: 30,
-    nextAction: "Media-Budget klären",
-    nextActionDate: daysFromNow(0),
-    notes: "Will neue Mitglieder für Januar-Kampagne gewinnen.",
-    activities: [],
-    createdAt: daysFromNow(-7),
-    updatedAt: daysFromNow(-1),
-  },
-  {
-    id: createId(),
-    name: "Elena Vogt",
-    company: "Vogt Immobilien",
-    email: "elena@vogt-immobilien.de",
-    phone: "+49 69 3334 901",
-    status: "Verhandlung",
-    service: "Automation",
-    source: "LinkedIn",
-    priority: "Hoch",
-    value: 12400,
-    probability: 75,
-    nextAction: "Vertrag finalisieren",
-    nextActionDate: daysFromNow(2),
-    notes: "CRM-Automation plus Lead-Nurturing. Datenschutzfragen offen.",
-    activities: [
-      { id: createId(), text: "Technische Anforderungen gesammelt", date: daysFromNow(-4) },
-    ],
-    createdAt: daysFromNow(-18),
-    updatedAt: daysFromNow(-1),
-  },
-  {
-    id: createId(),
-    name: "Rami Saleh",
-    company: "Nordlicht Cafe",
-    email: "rami@nordlicht.example",
-    phone: "+49 421 980 771",
-    status: "Neu",
-    service: "SEO",
-    source: "Website",
-    priority: "Niedrig",
-    value: 2400,
-    probability: 10,
-    nextAction: "Erstgespräch terminieren",
-    nextActionDate: daysFromNow(4),
-    notes: "Lokale Sichtbarkeit für zwei Standorte.",
-    activities: [],
-    createdAt: daysFromNow(-1),
-    updatedAt: daysFromNow(-1),
-  },
-  {
-    id: createId(),
-    name: "Nina Hartmann",
-    company: "Lumen Home",
-    email: "nina@lumenhome.de",
-    phone: "+49 89 4451 208",
-    status: "Gewonnen",
-    service: "Branding",
-    source: "Empfehlung",
-    priority: "Mittel",
-    value: 6800,
-    probability: 100,
-    nextAction: "Kickoff vorbereiten",
-    nextActionDate: daysFromNow(3),
-    notes: "Corporate Design und Shop-Visuals.",
-    activities: [{ id: createId(), text: "Anzahlung eingegangen", date: daysFromNow(-3) }],
-    createdAt: daysFromNow(-23),
-    updatedAt: daysFromNow(-3),
-  },
-];
 
 let state = loadState();
 let editingLeadId = null;
@@ -224,25 +123,31 @@ function loadState() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) {
     return {
-      leads: sampleLeads,
-      settings: { monthlyGoal: 15000, currency: "EUR" },
+      leads: [],
+      settings: defaultSettings(),
     };
   }
 
   try {
     const parsed = JSON.parse(stored);
+    const hasCurrentDataVersion = Number(parsed.settings?.dataVersion || 0) >= DATA_VERSION;
     const normalized = normalizeStoredText({
-      leads: Array.isArray(parsed.leads) ? parsed.leads : sampleLeads,
-      settings: { monthlyGoal: 15000, currency: "EUR", ...(parsed.settings || {}) },
+      leads: hasCurrentDataVersion && Array.isArray(parsed.leads) ? parsed.leads : [],
+      settings: { ...defaultSettings(), ...(parsed.settings || {}), dataVersion: DATA_VERSION },
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
     return normalized;
   } catch {
     return {
-      leads: sampleLeads,
-      settings: { monthlyGoal: 15000, currency: "EUR" },
+      leads: [],
+      settings: defaultSettings(),
     };
   }
+}
+
+function defaultSettings() {
+  return { monthlyGoal: 15000, currency: "EUR", dataVersion: DATA_VERSION };
+}
 
 function normalizeStoredText(value) {
   if (typeof value === "string") return normalizeGermanText(value);
@@ -291,7 +196,6 @@ function normalizeGermanText(value) {
     ["Duesseldorf", "Düsseldorf"],
   ];
   return replacements.reduce((text, [from, to]) => text.replaceAll(from, to), value);
-}
 }
 
 function saveState() {
@@ -781,7 +685,7 @@ function restoreJson(event) {
       if (!Array.isArray(data.leads)) throw new Error("Invalid backup");
       state = normalizeStoredText({
         leads: data.leads,
-        settings: { monthlyGoal: 15000, currency: "EUR", ...(data.settings || {}) },
+        settings: { ...defaultSettings(), ...(data.settings || {}), dataVersion: DATA_VERSION },
       });
       saveState();
       hydrateSelects();
