@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Digital Vision CRM</title>
+    <meta
+      name="description"
+      content="Lokales AgenturCRM fuer Digital Vision: Leads, Pipeline, Aufgaben und Umsatzprognosen."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Hauptnavigation">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div>
+            <strong>Digital Vision</strong>
+            <small>AgenturCRM</small>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            Uebersicht
+          </button>
+          <button class="nav-item" data-view="pipeline">
+            <i data-lucide="kanban-square"></i>
+            Pipeline
+          </button>
+          <button class="nav-item" data-view="leads">
+            <i data-lucide="users"></i>
+            Leads
+          </button>
+          <button class="nav-item" data-view="tasks">
+            <i data-lucide="calendar-check"></i>
+            Aufgaben
+          </button>
+          <button class="nav-item" data-view="insights">
+            <i data-lucide="bar-chart-3"></i>
+            Insights
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="ghost-button" id="backupJsonButton">
+            <i data-lucide="download"></i>
+            Backup
+          </button>
+          <label class="ghost-button file-button">
+            <i data-lucide="upload"></i>
+            Restore
+            <input id="restoreJsonInput" type="file" accept="application/json" />
+          </label>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="todayLabel"></p>
+            <h1 id="viewTitle">Uebersicht</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="search-field">
+              <i data-lucide="search"></i>
+              <input id="globalSearch" type="search" placeholder="Lead, Firma, E-Mail suchen" />
+            </div>
+            <button class="secondary-button" id="exportCsvButton">
+              <i data-lucide="sheet"></i>
+              CSV
+            </button>
+            <button class="primary-button" id="openLeadModal">
+              <i data-lucide="plus"></i>
+              Neuer Lead
+            </button>
+          </div>
+        </header>
+
+        <section class="view active" id="dashboardView" aria-labelledby="viewTitle">
+          <div class="metrics-grid" id="metricsGrid"></div>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Aktive Chancen</h2>
+                  <p>Priorisierte Leads nach naechster Aktion</p>
+                </div>
+                <button class="text-button" data-view-shortcut="leads">Alle Leads</button>
+              </div>
+              <div class="lead-stack" id="hotLeadStack"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Heute im Fokus</h2>
+                  <p>Faellige Follow-ups und offene Angebote</p>
+                </div>
+                <button class="text-button" data-view-shortcut="tasks">Alle Aufgaben</button>
+              </div>
+              <div class="task-list" id="focusTaskList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="pipelineView" aria-labelledby="viewTitle">
+          <div class="toolbar">
+            <div class="segmented-control" id="pipelineFilter">
+              <button class="active" data-service="all">Alle</button>
+              <button data-service="Website">Website</button>
+              <button data-service="SEO">SEO</button>
+              <button data-service="Ads">Ads</button>
+              <button data-service="Automation">Automation</button>
+            </div>
+          </div>
+          <div class="pipeline-board" id="pipelineBoard"></div>
+        </section>
+
+        <section class="view" id="leadsView" aria-labelledby="viewTitle">
+          <div class="toolbar">
+            <div class="filter-row">
+              <label>
+                Status
+                <select id="statusFilter"></select>
+              </label>
+              <label>
+                Quelle
+                <select id="sourceFilter"></select>
+              </label>
+              <label>
+                Sortierung
+                <select id="sortSelect">
+                  <option value="nextAction">Naechste Aktion</option>
+                  <option value="value">Dealwert</option>
+                  <option value="updatedAt">Zuletzt bearbeitet</option>
+                  <option value="company">Firma</option>
+                </select>
+              </label>
+            </div>
+            <label class="secondary-button file-button">
+              <i data-lucide="file-up"></i>
+              CSV Import
+              <input id="importCsvInput" type="file" accept=".csv,text/csv" />
+            </label>
+          </div>
+          <div class="table-wrap">
+            <table class="lead-table">
+              <thead>
+                <tr>
+                  <th>Kontakt</th>
+                  <th>Firma</th>
+                  <th>Status</th>
+                  <th>Service</th>
+                  <th>Deal</th>
+                  <th>Naechste Aktion</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="leadTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="view" id="tasksView" aria-labelledby="viewTitle">
+          <div class="task-columns" id="taskColumns"></div>
+        </section>
+
+        <section class="view" id="insightsView" aria-labelledby="viewTitle">
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Umsatz nach Status</h2>
+                  <p>Pipelinewert und gewichtete Prognose</p>
+                </div>
+              </div>
+              <div class="chart-list" id="statusChart"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Quellen</h2>
+                  <p>Welche Kanaele bringen die besten Leads?</p>
+                </div>
+              </div>
+              <div class="chart-list" id="sourceChart"></div>
+            </section>
+          </div>
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Monatsziel</h2>
+                <p>Gewonnene Deals im aktuellen Monat</p>
+              </div>
+              <div class="goal-editor">
+                <label for="monthlyGoal">Ziel</label>
+                <input id="monthlyGoal" type="number" min="0" step="500" />
+              </div>
+            </div>
+            <div class="goal-meter">
+              <div class="goal-track"><span id="goalProgress"></span></div>
+              <div class="goal-copy" id="goalCopy"></div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="leadDialog">
+      <form method="dialog" class="modal-body" id="leadForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Lead</p>
+            <h2 id="leadDialogTitle">Neuer Lead</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-dialog aria-label="Schliessen">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <input type="hidden" id="leadId" />
+        <div class="form-grid">
+          <label>
+            Kontaktname
+            <input id="name" name="name" required />
+          </label>
+          <label>
+            Firma
+            <input id="company" name="company" required />
+          </label>
+          <label>
+            E-Mail
+            <input id="email" name="email" type="email" />
+          </label>
+          <label>
+            Telefon
+            <input id="phone" name="phone" />
+          </label>
+          <label>
+            Status
+            <select id="status" name="status"></select>
+          </label>
+          <label>
+            Service
+            <select id="service" name="service"></select>
+          </label>
+          <label>
+            Quelle
+            <select id="source" name="source"></select>
+          </label>
+          <label>
+            Prioritaet
+            <select id="priority" name="priority">
+              <option>Hoch</option>
+              <option>Mittel</option>
+              <option>Niedrig</option>
+            </select>
+          </label>
+          <label>
+            Dealwert
+            <input id="value" name="value" type="number" min="0" step="100" required />
+          </label>
+          <label>
+            Wahrscheinlichkeit
+            <input id="probability" name="probability" type="number" min="0" max="100" step="5" />
+          </label>
+          <label>
+            Naechste Aktion
+            <input id="nextAction" name="nextAction" />
+          </label>
+          <label>
+            Datum
+            <input id="nextActionDate" name="nextActionDate" type="date" />
+          </label>
+        </div>
+        <label>
+          Notizen
+          <textarea id="notes" name="notes" rows="4"></textarea>
+        </label>
+
+        <div class="activity-area" id="activityArea">
+          <div class="activity-input">
+            <input id="activityInput" type="text" placeholder="Aktivitaet oder Gespraechsnotiz" />
+            <button class="secondary-button" type="button" id="addActivityButton">
+              <i data-lucide="message-square-plus"></i>
+              Hinzufuegen
+            </button>
+          </div>
+          <div class="activity-list" id="activityList"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="danger-button" type="button" id="deleteLeadButton">
+            <i data-lucide="trash-2"></i>
+            Loeschen
+          </button>
+          <div>
+            <button class="secondary-button" type="button" data-close-dialog>Abbrechen</button>
+            <button class="primary-button" type="submit">
+              <i data-lucide="save"></i>
+              Speichern
+            </button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
