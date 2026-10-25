@@ -4,7 +4,11 @@ Lokale CRM-Web-App für Leads, Pipeline, Aufgaben, CSV-Import/Export und JSON-Ba
 
 ## Start
 
-Öffne `index.html` direkt im Browser. Die Daten werden im LocalStorage des Browsers gespeichert.
+```bash
+npm run dev
+```
+
+Danach öffne `http://localhost:3000`. Die Daten werden im LocalStorage des Browsers gespeichert.
 
 ## CSV Import
 
